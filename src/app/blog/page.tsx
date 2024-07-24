@@ -40,16 +40,6 @@ const Page = () => {
     // };
   }, []);
 
-
-  useEffect(() => {
-
-  
-    return () => {
-      second
-    }
-  }, [third])
-  
-
   const sendMessage = () => {
     if (serviceWorker) {
       (serviceWorker as any).postMessage({ text });
