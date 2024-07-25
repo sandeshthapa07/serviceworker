@@ -14,65 +14,52 @@ const Page = () => {
 
     if (navigator.onLine) {
       sendMessage();
-      console.log("online mode active");
-      sendMessage();
     } else {
+      // indexedDB => save to indexedDB
       await addToIndexedDB(blogdata);
+      // communication beteween sw and browser => waiter
       sendMessage();
-      console.log("message added to indexedDB");
+      // chefharu
+      backgroundSync()
     }
   };
-  // const [response, setResponse] = useState("");
-  // const [serviceWorker, setServiceWorker] = useState(null);
   const { serviceWorker, contentFromSW } = useContext(SWContext);
-  console.log(contentFromSW);
 
-  // useEffect(() => {
-  //   if ("serviceWorker" in navigator) {
-  //     navigator.serviceWorker
-  //       .register("/service-worker.js")
-  //       .then((registration) => {
-  //         console.log(
-  //           "Service Worker registered with scope:",
-  //           registration.scope
-  //         );
-  //         setServiceWorker(
-  //           (registration.active as any) ||
-  //             registration.waiting ||
-  //             registration.installing
-  //         );
-  //       })
-  //       .catch((error) => {
-  //         console.error("Service Worker registration failed:", error);
-  //       });
-  //   }
+ 
+   useEffect(() => {
+    setText(contentFromSW);
+   }, [contentFromSW]);
+   
 
-  //   navigator?.serviceWorker?.addEventListener("message", (event) => {
-  //     console.log("Message received from service worker:", event.data);
-  //     //   setResponse(event.data);
-  //   });
-  //   // return () => {
-  //   //   navigator.serviceWorker.removeEventListener("message", handleMessage);
-  //   // };
-  // }, []);
+  
+   const backgroundSync = () => {
+    navigator.serviceWorker.ready.then(function(swRegistration) {
+      return swRegistration.sync.register('myFirstSync');
+    });
+   }
 
   const sendMessage = () => {
     if (serviceWorker) {
       (serviceWorker as any).postMessage({ text });
     }
 
-    // navigator.serviceWorker.ready.then((registration) => {
-    //   registration.sync.register("myfirstsync");
-    // });
+   
   };
 
   return (
     <div className="">
       <form className="flex p-24 flex-col gap-5">
+
+        <h1 className="text-3xl font-bold">Preview</h1>
+
+        <p>{contentFromSW}</p>
+
         <div className="flex flex-col gap-5 ">
           <label htmlFor="editor">Content</label>
           <textarea
             name="editor"
+            value={text}
+          
             onChange={(e) => setText(e.target.value)}
             id="editor"
             className="bg-gray-300 h-[200px] p-4 rounded=lg"
@@ -97,8 +84,8 @@ const Page = () => {
 
 export default Page;
 
-const DB_NAME = "OfflineDataStore";
-const STORE_NAME = "pendingRequests";
+const DB_NAME = "mero-maya-ko-thailo";
+const STORE_NAME = "bhana-nasakeko-bhawana";
 const dbversion = 1;
 
 async function openDB() {
