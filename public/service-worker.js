@@ -200,12 +200,23 @@ async function syncData() {
             );
 
             if (json) {
-              const transaction = db.transaction(STORE_NAME, "readwrite");
+              const transaction = db.transaction([STORE_NAME], "readwrite");
               const store = transaction.objectStore(STORE_NAME);
               // tero kaam xoena abo hai => delete blog
-              console.log("delete blog", typeof blog.id);
-              await store.delete(blog.id);
-              await store.done;
+
+              console.log("delete blog", blog.id);
+              const result = await store.delete(blog.id);
+              result.onsuccess = (event) => {
+                console.log("deleted", event.target.result);
+              };
+              result.onerror = (event) => {
+                console.log("error", event.target.error);
+              };
+              transaction.oncomplete = (event) => {
+                console.log("transaction complete");
+              };
+
+              db.close();
             }
           });
       });
