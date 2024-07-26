@@ -1,4 +1,4 @@
-const version = 1;
+const version = 4;
 const cacheName = `thats-what-she-said-${version}`;
 
 const DB_NAME = "mero-maya-ko-thailo";
@@ -11,9 +11,16 @@ self.addEventListener("install", function (event) {
 
 self.addEventListener("activate", function (event) {
   // naya bahana aaayesi purano hataune
-  // event.keys.then((keys=>{
-  //   return Promise.all(keys.filter(key => key !== cacheName).map(key => caches.delete(key)));
-  // }))
+
+  // delete old cache when new version is installed
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== cacheName).map((key) => caches.delete(key))
+      );
+    })
+  );
+
   console.log("Service worker activate bhayo");
 });
 
@@ -33,21 +40,21 @@ self.addEventListener("fetch", function (event) {
 
   // network first
 
-  // event.respondWith(
-  //   fetch(event.request)
-  //     .then((response) => {
-  //       if (response.ok) {
-  //         const responseClone = response.clone();
-  //         caches.open(cacheName).then((cache) => {
-  //           cache.put(event.request, responseClone);
-  //         });
-  //       }
-  //       return response;
-  //     })
-  //     .catch(() => {
-  //       return caches.match(event.request);
-  //     })
-  // );
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(cacheName).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
+  );
 
   const localDataPahile = (event) => {
     return caches.match(event.request);
